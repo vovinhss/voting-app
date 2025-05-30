@@ -1,11 +1,40 @@
-name: First Workflow
-on: push
+name: CI/CD Pipeline for Voting App
+on:
+  push:
+    branches: [staging]
+
 jobs:
-  first:
+  setup:
+    name: Setup and Test
     runs-on: ubuntu-latest
+
     steps:
-      - name: Hello
-        run: echo hello
-      - name: Follow
+      - name: checkout-code
+        uses: actions/checkout@v3
+
+      - name: python-setup
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: install-python-denpendencies
         run: |
-          echo test
+          pwd
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: run-python-test
+        run: |
+          pytest tests/
+
+      - name: python-lint
+        run: |
+          pip install flake8
+          flake8 . --exclude=node_modules,migrations
+
+      - name: js-lint
+        run: |
+          npm ci
+          npm run lint
+        working-directory: ./frontend
+        continue-on-error: true
