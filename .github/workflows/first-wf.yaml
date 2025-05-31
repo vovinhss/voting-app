@@ -2,28 +2,46 @@ name: CI/CD Pipeline for Voting App
 on:
   push:
     branches: [staging]
+  pull_request:
+    branches: [staging]
 
 jobs:
-  setup:
-    name: Setup and Test
+  lint:
+    name: Code Quality Checks
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./vote
 
     steps:
-      - name: checkout-code
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: python-setup
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.11'
+          cache: 'pip'
 
-      - name: install-python-denpendencies
+      - name: Install dependencies
         run: |
-          cd vote/
           python -m pip install --upgrade pip
-          pip install flake8
+          pip install -r requirements.txt
+          pip install flake8 pylint black isort
 
-      - name: python-lint
+      - name: Check formatting with Black
+        run: black --check --diff .
+
+      - name: Check import sorting with isort
+        run: isort --check-only --diff .
+
+      - name: Lint with flake8
         run: |
-          cd vote/
-          flake8 . --exclude=node_modules,migrations
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=89 --statistics --exclude=node_modules,migrations
+
+      - name: Lint with pylint
+        run: |
+          pylint --disable=all --enable=C,E,F,W --max-line-length=89 --ignore=node_modules,migrations $(find . -name "*.py" -not -path "./node_modules/*" -not -path "./migrations/*")
