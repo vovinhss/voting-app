@@ -21,7 +21,7 @@ def get_redis():
         g.redis = Redis(host="redis", db=0, socket_timeout=5)
     return g.redis
 
-@app.route("/", methods=["POST","GET"])
+@app.route("/", methods=["POST", "GET"])
 def hello():
     voter_id = request.cookies.get("voter_id")
     if not voter_id:
@@ -36,13 +36,15 @@ def hello():
         data = json.dumps({"voter_id": voter_id, "vote": vote})
         redis.rpush("votes", data)
 
-    resp = make_response(render_template(
-        "index.html",
-        option_a=option_a,
-        option_b=option_b,
-        hostname=hostname,
-        vote=vote,
-    ))
+    resp = make_response(
+        render_template(
+            "index.html",
+            option_a=option_a,
+            option_b=option_b,
+            hostname=hostname,
+            vote=vote,
+        )
+    )
     resp.set_cookie("voter_id", voter_id)
     return resp
 
