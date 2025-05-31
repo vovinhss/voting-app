@@ -19,13 +19,11 @@ jobs:
 
       - name: install-python-denpendencies
         run: |
-          pwd
+          cd vote/
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip isntall flake8
 
       - name: python-lint
         run: |
-          pwd
-          ls -l
-          pip install flake8
+          cd vote/
           flake8 . --exclude=node_modules,migrations
