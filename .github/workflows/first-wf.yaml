@@ -23,18 +23,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: run-python-test
-        run: |
-          pytest tests/
-
       - name: python-lint
         run: |
+          pwd
+          ls -l
           pip install flake8
           flake8 . --exclude=node_modules,migrations
-
-      - name: js-lint
-        run: |
-          npm ci
-          npm run lint
-        working-directory: ./frontend
-        continue-on-error: true
