@@ -6,8 +6,27 @@ on:
     branches: [staging]
 
 jobs:
-  lint:
-    name: Code Quality Checks
+  yaml-lint:
+    name: YAML Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: Lint Kubernetes YAML files
+        run: yamllint -c .yamllint.yaml k8s-specifications/
+
+  python-lint:
+    name: Python Lint
     runs-on: ubuntu-latest
     defaults:
       run:
