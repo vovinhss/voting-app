@@ -64,3 +64,20 @@ jobs:
       - name: Lint with pylint
         run: |
           pylint --disable=all --enable=C,E,F,W --max-line-length=89 --ignore=node_modules,migrations $(find . -name "*.py" -not -path "./node_modules/*" -not -path "./migrations/*")
+
+  docker-lint:
+    name: Docker Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Hadolint
+        run: |
+          curl -Lo hadolint https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-x86_64
+          chmod +x hadolint
+          sudo mv hadolint /usr/local/bin/
+
+      - name: Lint Dockerfiles
+        run: |
+          find . -name "Dockerfile" -type f -exec hadolint {} \;
