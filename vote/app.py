@@ -1,3 +1,9 @@
+"""
+A Flask web application for a simple voting system.
+This module implements a web interface where users can vote between two options.
+Votes are stored in Redis and each voter is tracked using a cookie.
+"""
+
 import json
 import logging
 import os
@@ -19,6 +25,12 @@ app.logger.setLevel(logging.INFO)
 
 
 def get_redis():
+    """
+    Get or create a Redis connection.
+
+    Returns:
+        Redis: A Redis connection instance stored in Flask's application context.
+    """
     if not hasattr(g, "redis"):
         g.redis = Redis(host="redis", db=0, socket_timeout=5)
     return g.redis
@@ -26,6 +38,14 @@ def get_redis():
 
 @app.route("/", methods=["POST", "GET"])
 def hello():
+    """
+    Handle the main voting page requests.
+
+    Returns:
+        Response: A Flask response object containing the rendered voting page.
+        For GET requests, displays the voting form.
+        For POST requests, processes the vote and displays the updated form.
+    """
     voter_id = request.cookies.get("voter_id")
     if not voter_id:
         voter_id = hex(random.getrandbits(64))[2:-1]
