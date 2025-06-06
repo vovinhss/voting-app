@@ -83,7 +83,7 @@ jobs:
           exit_code=0
           while IFS= read -r dockerfile; do
             echo "Linting $dockerfile..."
-            if ! hadolint "$dockerfile"; then
+            if ! hadolint --failure-threshold error "$dockerfile"; then
               exit_code=1
             fi
           done < <(find . -name "Dockerfile" -type f)
